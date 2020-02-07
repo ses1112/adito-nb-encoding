@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+AutoUpdate-Show-In-Client: true
+OpenIDE-Module-Long-Description: The encoding plugin shows the encoding used for the file in the active editor and also allows the setting of a new encoding
+OpenIDE-Module-Short-Description: Plugin that shows which encoding is used for the file in the editor
