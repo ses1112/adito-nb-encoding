@@ -1,21 +1,16 @@
 package de.adito.nbm.encoding;
 
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import com.google.common.cache.*;
+import org.jetbrains.annotations.*;
 import org.mozilla.universalchardet.UniversalDetector;
 import org.netbeans.spi.queries.FileEncodingQueryImplementation;
 import org.openide.filesystems.FileObject;
 import org.openide.util.lookup.ServiceProvider;
 
-import java.io.BufferedInputStream;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.charset.Charset;
-import java.util.Date;
-import java.util.Optional;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
+import java.util.*;
+import java.util.concurrent.*;
 
 /**
  * @author m.kaspera, 07.02.2020
@@ -60,7 +55,7 @@ public class CharDetEncodingProvider extends FileEncodingQueryImplementation
   /**
    * Beschreibung einer Datei für den Cache.
    */
-  private final static class _FileDescription
+  private static final class _FileDescription
   {
     private String path;
     private long lastModified;
