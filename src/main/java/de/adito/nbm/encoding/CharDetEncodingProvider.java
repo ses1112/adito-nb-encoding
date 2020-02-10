@@ -2,6 +2,8 @@ package de.adito.nbm.encoding;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.mozilla.universalchardet.UniversalDetector;
 import org.netbeans.spi.queries.FileEncodingQueryImplementation;
 import org.openide.filesystems.FileObject;
@@ -25,8 +27,9 @@ public class CharDetEncodingProvider extends FileEncodingQueryImplementation
   private final Cache<_FileDescription, Optional<Charset>> cache =
       CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.MINUTES).build();
 
+  @Nullable
   @Override
-  public Charset getEncoding(FileObject pFileObject)
+  public Charset getEncoding(@NotNull FileObject pFileObject)
   {
     try
     {
