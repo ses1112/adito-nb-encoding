@@ -15,7 +15,7 @@ import java.util.concurrent.*;
 /**
  * @author m.kaspera, 07.02.2020
  */
-@ServiceProvider(service = FileEncodingQueryImplementation.class, position = 103)
+@ServiceProvider(service = FileEncodingQueryImplementation.class, position = 99)
 public class CharDetEncodingProvider extends FileEncodingQueryImplementation
 {
 
