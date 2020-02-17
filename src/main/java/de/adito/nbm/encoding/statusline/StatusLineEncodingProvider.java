@@ -1,6 +1,7 @@
 package de.adito.nbm.encoding.statusline;
 
 import de.adito.nbm.encoding.CharDetEncodingProvider;
+import de.adito.swing.KeyForwardAdapter;
 import de.adito.swing.popup.*;
 import org.jetbrains.annotations.Nullable;
 import org.mozilla.universalchardet.Constants;
@@ -40,6 +41,7 @@ public class StatusLineEncodingProvider implements StatusLineElementProvider, Pr
   private final List<String> pluginSupportedEncodings = new ArrayList<>();
   private FileObject lastFileObject;
   private PopupWindow popupWindow;
+  private EncodingQuickSearchCallback quickSearchCallback;
 
   public StatusLineEncodingProvider()
   {
@@ -52,18 +54,20 @@ public class StatusLineEncodingProvider implements StatusLineElementProvider, Pr
 
     encodingList = new _JListWithTooltips(new HashSet<>(pluginSupportedEncodings));
     _setupEncodingList();
+    quickSearchCallback = new EncodingQuickSearchCallback(encodingList);
     if (SwingUtilities.isEventDispatchThread())
     {
-      popupWindow = new PopupWindow(WindowManager.getDefault().getMainWindow(), "File encoding", encodingList);
+      popupWindow = new PopupWindow(WindowManager.getDefault().getMainWindow(), "File encoding", encodingList, quickSearchCallback);
       encodingLabel.addMouseListener(new PopupMouseAdapter(popupWindow, encodingPanel, encodingList));
     }
     else
     {
       SwingUtilities.invokeLater(() -> {
-        popupWindow = new PopupWindow(WindowManager.getDefault().getMainWindow(), "File encoding", encodingList);
+        popupWindow = new PopupWindow(WindowManager.getDefault().getMainWindow(), "File encoding", encodingList, quickSearchCallback);
         encodingLabel.addMouseListener(new PopupMouseAdapter(popupWindow, encodingPanel, encodingList));
       });
     }
+    encodingList.addKeyListener(new KeyForwardAdapter(popupWindow.getSearchAttachComponent()));
   }
 
   /**
@@ -92,6 +96,7 @@ public class StatusLineEncodingProvider implements StatusLineElementProvider, Pr
         if (selectedEncoding != null)
         {
           _setEncoding(selectedEncoding);
+          quickSearchCallback.quickSearchConfirmed();
           popupWindow.disposeWindow();
         }
       }
@@ -218,6 +223,7 @@ public class StatusLineEncodingProvider implements StatusLineElementProvider, Pr
       return;
     DataObject dataObject = NbEditorUtilities.getDataObject(textComponent.getDocument());
     FileObject fileObject = dataObject.getPrimaryFile();
+
     try
     {
       byte[] fileContents = fileObject.asBytes();
@@ -311,6 +317,7 @@ public class StatusLineEncodingProvider implements StatusLineElementProvider, Pr
       if (index != -1)
       {
         _setEncoding(source.getModel().getElementAt(index));
+        quickSearchCallback.quickSearchCanceled();
         popupWindow.disposeWindow();
       }
     }
