@@ -28,22 +28,37 @@ public class CharDetEncodingProvider extends FileEncodingQueryImplementation
   {
     try
     {
-      return cache.get(new _FileDescription(pFileObject), () -> {
+      Charset encoding = null;
+      Object fileAttributesObj = pFileObject.getAttribute("ENCODING");
+      if (fileAttributesObj != null)
+        encoding = Charset.forName((String) fileAttributesObj);
+      Charset uChardetEncoding = cache.get(new _FileDescription(pFileObject), () -> {
         try (InputStream in = new BufferedInputStream(pFileObject.getInputStream()))
         {
           UniversalDetector detector = new UniversalDetector(null);
           byte[] buf = new byte[4096];
           int nread;
-          while ((nread = in.read(buf)) > 0 && !detector.isDone()) {
+          while ((nread = in.read(buf)) > 0 && !detector.isDone())
+          {
             detector.handleData(buf, 0, nread);
           }
           detector.dataEnd();
           String detectedCharset = detector.getDetectedCharset();
-          if(detectedCharset != null)
+          if (detectedCharset != null)
             return java.util.Optional.of(Charset.forName(detectedCharset));
           return java.util.Optional.empty();
         }
       }).orElse(null);
+      if (encoding != null && uChardetEncoding != null)
+      {
+        if (!encoding.equals(uChardetEncoding))
+          encoding = uChardetEncoding;
+      }
+      else if (uChardetEncoding != null)
+      {
+        encoding = uChardetEncoding;
+      }
+      return encoding;
     }
     catch (ExecutionException e)
     {

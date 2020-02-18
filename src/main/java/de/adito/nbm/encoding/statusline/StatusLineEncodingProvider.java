@@ -3,15 +3,18 @@ package de.adito.nbm.encoding.statusline;
 import de.adito.nbm.encoding.CharDetEncodingProvider;
 import de.adito.swing.KeyForwardAdapter;
 import de.adito.swing.popup.*;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jetbrains.annotations.Nullable;
 import org.mozilla.universalchardet.Constants;
+import org.netbeans.api.actions.Savable;
 import org.netbeans.api.editor.EditorRegistry;
 import org.netbeans.api.queries.FileEncodingQuery;
 import org.netbeans.modules.editor.NbEditorUtilities;
+import org.openide.*;
 import org.openide.awt.*;
 import org.openide.filesystems.*;
 import org.openide.loaders.DataObject;
-import org.openide.util.Lookup;
+import org.openide.util.*;
 import org.openide.util.lookup.ServiceProvider;
 import org.openide.windows.WindowManager;
 
@@ -34,11 +37,13 @@ import java.util.*;
 public class StatusLineEncodingProvider implements StatusLineElementProvider, PropertyChangeListener, FileChangeListener
 {
 
+  private static final String ENCODING_ATTRIBUTE = "ENCODING";
   private static final String ENTER_KEY_STRING = "ENTER";
   private final JLabel encodingLabel = new JLabel("encoding here");
   private final JPanel encodingPanel;
   private final JList<String> encodingList;
   private final List<String> pluginSupportedEncodings = new ArrayList<>();
+  private final Icon warningIcon = new ImageIcon(ImageUtilities.loadImage("de/adito/nbm/encoding/warning12.png"));
   private FileObject lastFileObject;
   private PopupWindow popupWindow;
   private EncodingQuickSearchCallback quickSearchCallback;
@@ -186,12 +191,25 @@ public class StatusLineEncodingProvider implements StatusLineElementProvider, Pr
   private void _updateLabel(@Nullable FileObject pFileObject)
   {
     Charset encoding = null;
+    String fileAttrEncoding = null;
     if (pFileObject != null)
     {
       CharDetEncodingProvider encodingProvider = Lookup.getDefault().lookup(CharDetEncodingProvider.class);
       encoding = encodingProvider.getEncoding(pFileObject);
       if (encoding == null)
         encoding = FileEncodingQuery.getEncoding(pFileObject);
+      fileAttrEncoding = (String) pFileObject.getAttribute(ENCODING_ATTRIBUTE);
+    }
+    if (fileAttrEncoding != null && !Charset.forName(fileAttrEncoding).equals(encoding))
+    {
+      encodingLabel.setToolTipText("Detected different encodings for file attribute and charset detection. File attribute: "
+                                       + fileAttrEncoding + ", charset detection: " + encoding);
+      encodingLabel.setIcon(warningIcon);
+    }
+    else
+    {
+      encodingLabel.setToolTipText(null);
+      encodingLabel.setIcon(null);
     }
     encodingLabel.setText(encoding == null ? "N/A" : encoding.toString());
   }
@@ -221,11 +239,12 @@ public class StatusLineEncodingProvider implements StatusLineElementProvider, Pr
     JTextComponent textComponent = getTextComponent();
     if (textComponent == null)
       return;
+    _saveAll();
     DataObject dataObject = NbEditorUtilities.getDataObject(textComponent.getDocument());
     FileObject fileObject = dataObject.getPrimaryFile();
-
     try
     {
+      fileObject.setAttribute(ENCODING_ATTRIBUTE, pSelectedEncoding);
       byte[] fileContents = fileObject.asBytes();
       Charset currentEncoding = FileEncodingQuery.getEncoding(fileObject);
       try (OutputStream outputStream = fileObject.getOutputStream())
@@ -348,4 +367,75 @@ public class StatusLineEncodingProvider implements StatusLineElementProvider, Pr
         return null;
     }
   }
+
+  private static void _saveAll()
+  {
+    Map<Savable, IOException> couldNotSave = new LinkedHashMap<>();
+    // Alles aus 'Savable.REGISTRY' speichern.
+    for (Savable savable : Savable.REGISTRY.lookupAll(Savable.class))
+      if (!_save(savable, couldNotSave))
+        return;
+    // Alte Implementierungen finden sich u.U. nur in 'DataObject.getRegistry()'.
+    for (DataObject dataObject : DataObject.getRegistry().getModifiedSet())
+      for (Savable savable : dataObject.getLookup().lookupAll(Savable.class))
+        if (!_save(savable, couldNotSave))
+          return;
+
+    if (!couldNotSave.isEmpty())
+      _warnCouldNotSave(couldNotSave);
+  }
+
+  /**
+   * Speichert das Savable, das übergeben wird
+   *
+   * @param pSavable Savable das gespeichert werden soll
+   */
+  private static boolean _save(Savable pSavable, Map<Savable, IOException> pCouldNotSave)
+  {
+    try
+    {
+      try
+      {
+        pSavable.save();
+      }
+      catch (UserQuestionException e)
+      {
+        NotifyDescriptor nd = new NotifyDescriptor.Confirmation(e.getLocalizedMessage(), NotifyDescriptor.YES_NO_CANCEL_OPTION);
+        Object res = DialogDisplayer.getDefault().notify(nd);
+        if (NotifyDescriptor.YES_OPTION.equals(res))
+          e.confirmed();
+        else if (NotifyDescriptor.CANCEL_OPTION.equals(res))
+          return false;
+      }
+    }
+    catch (IOException e)
+    {
+      //noinspection ThrowableResultOfMethodCallIgnored
+      pCouldNotSave.put(pSavable, e);
+    }
+    return true;
+  }
+
+  private static void _warnCouldNotSave(Map<Savable, IOException> pCouldNotSave)
+  {
+    StringBuilder notSaveObjectsStr = new StringBuilder();
+    StringBuilder details = new StringBuilder();
+    for (Map.Entry<Savable, IOException> entry : pCouldNotSave.entrySet())
+    {
+      Savable savable = entry.getKey();
+      IOException exception = entry.getValue();
+
+      if (notSaveObjectsStr.length() != 0)
+        notSaveObjectsStr.append("\n");
+      notSaveObjectsStr.append(savable);
+
+      if (details.length() != 0)
+        details.append("\n\n");
+      details.append(savable).append(":\n").append(ExceptionUtils.getStackTrace(exception));
+    }
+
+    throw new RuntimeException("Couldn't save a modified file before setting the encoding for the current file.\nFiles: "
+                                   + notSaveObjectsStr.toString() + "\nDetails: " + details);
+  }
+
 }
