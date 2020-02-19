@@ -17,6 +17,8 @@ public class EncodingListCellRenderer extends JPanel implements ListCellRenderer
   private final JLabel encodingLabel = new JLabel();
   private final JLabel isSupportedLabel = new JLabel();
   private final ImageIcon warningIcon;
+  private final Color backgroundColor = getBackground();
+  private final Color foregroundColor = getForeground();
 
   public EncodingListCellRenderer(List<String> pSupportedEncodings)
   {
@@ -37,11 +39,15 @@ public class EncodingListCellRenderer extends JPanel implements ListCellRenderer
     {
       setBackground(pList.getSelectionBackground());
       setForeground(pList.getSelectionForeground());
+      encodingLabel.setBackground(pList.getSelectionBackground());
+      encodingLabel.setForeground(pList.getSelectionForeground());
     }
     else
     {
-      setBackground(pList.getBackground());
-      setForeground(pList.getForeground());
+      setBackground(backgroundColor);
+      setForeground(foregroundColor);
+      encodingLabel.setBackground(backgroundColor);
+      encodingLabel.setForeground(foregroundColor);
     }
     setEnabled(pList.isEnabled());
 

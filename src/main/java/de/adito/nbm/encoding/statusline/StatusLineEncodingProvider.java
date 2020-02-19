@@ -107,6 +107,8 @@ public class StatusLineEncodingProvider implements StatusLineElementProvider, Pr
       }
     });
     encodingList.addMouseListener(new EncodingSelectionMouseListener());
+    encodingList.addMouseListener(new HoverMouseListener());
+    encodingList.addMouseMotionListener(new HoverMouseListener());
   }
 
   /**
