@@ -5,3 +5,4 @@ OpenIDE-Module-Long-Description: The encoding plugin shows the encoding used for
   <p style="font-weight: bold;">v.1.0</p>
   Initial Release
 OpenIDE-Module-Short-Description: Plugin that shows which encoding is used for the file in the editor
+OpenIDE-Module-Display-Category: ADITO / File
