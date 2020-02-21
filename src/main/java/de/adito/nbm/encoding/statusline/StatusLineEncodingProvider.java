@@ -7,20 +7,17 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.jetbrains.annotations.Nullable;
 import org.mozilla.universalchardet.Constants;
 import org.netbeans.api.actions.Savable;
-import org.netbeans.api.editor.EditorRegistry;
 import org.netbeans.api.queries.FileEncodingQuery;
-import org.netbeans.modules.editor.NbEditorUtilities;
 import org.openide.*;
 import org.openide.awt.*;
 import org.openide.filesystems.*;
 import org.openide.loaders.DataObject;
 import org.openide.util.*;
 import org.openide.util.lookup.ServiceProvider;
-import org.openide.windows.WindowManager;
+import org.openide.windows.*;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.text.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.beans.*;
@@ -55,7 +52,7 @@ public class StatusLineEncodingProvider implements StatusLineElementProvider, Pr
     encodingPanel = new JPanel(new BorderLayout());
     encodingPanel.add(new StatusLineSeparator(), BorderLayout.WEST);
     encodingPanel.add(encodingLabel, BorderLayout.CENTER);
-    EditorRegistry.addPropertyChangeListener(this);
+    TopComponent.getRegistry().addPropertyChangeListener(this);
 
     encodingList = new _JListWithTooltips(new HashSet<>(pluginSupportedEncodings));
     _setupEncodingList();
@@ -150,20 +147,7 @@ public class StatusLineEncodingProvider implements StatusLineElementProvider, Pr
    */
   private void _update()
   {
-    JTextComponent textComponent = EditorRegistry.focusedComponent();
-    if (textComponent == null)
-    {
-      _updateLabel(null);
-      return;
-    }
-    Document document = textComponent.getDocument();
-    if (document == null)
-    {
-      _updateLabel(null);
-      return;
-    }
-
-    FileObject fileObject = NbEditorUtilities.getFileObject(document);
+    FileObject fileObject = _getFileObject();
     _updateListeners(fileObject);
     _updateLabel(fileObject);
   }
@@ -229,12 +213,10 @@ public class StatusLineEncodingProvider implements StatusLineElementProvider, Pr
    */
   private void _setEncoding(String pSelectedEncoding)
   {
-    JTextComponent textComponent = EditorRegistry.focusedComponent();
-    if (textComponent == null)
+    FileObject fileObject = _getFileObject();
+    if (fileObject == null)
       return;
     _saveAll();
-    DataObject dataObject = NbEditorUtilities.getDataObject(textComponent.getDocument());
-    FileObject fileObject = dataObject.getPrimaryFile();
     try
     {
       fileObject.setAttribute(ENCODING_ATTRIBUTE, pSelectedEncoding);
@@ -252,6 +234,18 @@ public class StatusLineEncodingProvider implements StatusLineElementProvider, Pr
                                                 NotificationDisplayer.Priority.NORMAL.getIcon(), pE.getMessage(), null);
     }
     encodingList.clearSelection();
+  }
+
+  @Nullable
+  private FileObject _getFileObject()
+  {
+    Mode editorMode = WindowManager.getDefault().findMode("editor");
+    if (editorMode == null)
+      return null;
+    TopComponent selectedTopComponent = editorMode.getSelectedTopComponent();
+    if (selectedTopComponent == null)
+      return null;
+    return selectedTopComponent.getLookup().lookup(FileObject.class);
   }
 
   /*
