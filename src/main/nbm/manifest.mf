@@ -2,6 +2,14 @@ Manifest-Version: 1.0
 AutoUpdate-Show-In-Client: true
 OpenIDE-Module-Long-Description: The encoding plugin shows the encoding used for the file in the active editor and also allows the setting of a new encoding
   <p style="font-weight: bold;">Changelog</p>
+  <p style="font-weight: bold;">v.1.0.1</p>
+  <p style="margin-left: 10px; font-weight: bold;">MINOR</p>
+  <ul>
+    <li>The label showing the encoding only considers the currently active editor, instead of also the last focused one. This means "N/A" is shown if a non-Editor TopComponent is focused</li>
+    <li>The starting message shown in the label is now "N/A" instead of "encoding here"</li>
+    <li>Adjusted looks of the popup, mostly visible in the bright theme</li>
+    <li>Netbeans Plugin category is now set</li>
+  </ul>
   <p style="font-weight: bold;">v.1.0</p>
   Initial Release
 OpenIDE-Module-Short-Description: Plugin that shows which encoding is used for the file in the editor
