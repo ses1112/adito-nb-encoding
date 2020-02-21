@@ -2,6 +2,11 @@ Manifest-Version: 1.0
 AutoUpdate-Show-In-Client: true
 OpenIDE-Module-Long-Description: The encoding plugin shows the encoding used for the file in the active editor and also allows the setting of a new encoding
   <p style="font-weight: bold;">Changelog</p>
+  <p style="font-weight: bold;">v.1.0.2</p>
+  <ul>
+    <li>The label showing the encoding of the current file now works on the TopComponent instead of the editor -> label doesn't show "N/A" if the popup is shown</li>
+    <li>The popup for the list of encodings is now aligned with the top of the label instead of the bottom</li>
+  </ul>
   <p style="font-weight: bold;">v.1.0.1</p>
   <p style="margin-left: 10px; font-weight: bold;">MINOR</p>
   <ul>
