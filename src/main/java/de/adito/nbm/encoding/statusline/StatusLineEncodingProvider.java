@@ -39,7 +39,7 @@ public class StatusLineEncodingProvider implements StatusLineElementProvider, Pr
 
   private static final String ENCODING_ATTRIBUTE = "ENCODING";
   private static final String ENTER_KEY_STRING = "ENTER";
-  private final JLabel encodingLabel = new JLabel("encoding here");
+  private final JLabel encodingLabel = new JLabel("N/A");
   private final JPanel encodingPanel;
   private final JList<String> encodingList;
   private final List<String> pluginSupportedEncodings = new ArrayList<>();
@@ -150,11 +150,16 @@ public class StatusLineEncodingProvider implements StatusLineElementProvider, Pr
    */
   private void _update()
   {
-    JTextComponent textComponent = getTextComponent();
-    if (textComponent == null) return;
+    JTextComponent textComponent = EditorRegistry.focusedComponent();
+    if (textComponent == null)
+    {
+      _updateLabel(null);
+      return;
+    }
     Document document = textComponent.getDocument();
     if (document == null)
     {
+      _updateLabel(null);
       return;
     }
 
@@ -217,20 +222,6 @@ public class StatusLineEncodingProvider implements StatusLineElementProvider, Pr
   }
 
   /**
-   * Get the TextComponent currently or last selected
-   *
-   * @return TextComponent or null
-   */
-  @Nullable
-  private JTextComponent getTextComponent()
-  {
-    JTextComponent textComponent = EditorRegistry.focusedComponent();
-    if (textComponent == null)
-      textComponent = EditorRegistry.lastFocusedComponent();
-    return textComponent;
-  }
-
-  /**
    * Determines the dataObject of the current TextComponent, reads the contents in the current encoding and the writes the content in the
    * selected encoding to file
    *
@@ -238,7 +229,7 @@ public class StatusLineEncodingProvider implements StatusLineElementProvider, Pr
    */
   private void _setEncoding(String pSelectedEncoding)
   {
-    JTextComponent textComponent = getTextComponent();
+    JTextComponent textComponent = EditorRegistry.focusedComponent();
     if (textComponent == null)
       return;
     _saveAll();
