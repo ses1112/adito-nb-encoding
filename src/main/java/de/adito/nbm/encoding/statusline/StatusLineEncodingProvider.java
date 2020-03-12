@@ -39,7 +39,7 @@ public class StatusLineEncodingProvider implements StatusLineElementProvider, Pr
   private final JLabel encodingLabel = new JLabel("N/A");
   private final JPanel encodingPanel;
   private final JList<String> encodingList;
-  private final List<String> pluginSupportedEncodings = new ArrayList<>();
+  private final Set<String> pluginSupportedEncodings = new HashSet<>();
   private final Icon warningIcon = new ImageIcon(ImageUtilities.loadImage("de/adito/nbm/encoding/warning12.png"));
   private FileObject lastFileObject;
   private PopupWindow popupWindow;
@@ -55,7 +55,7 @@ public class StatusLineEncodingProvider implements StatusLineElementProvider, Pr
     TopComponent.getRegistry().addPropertyChangeListener(this);
 
     encodingList = new _JListWithTooltips(new HashSet<>(pluginSupportedEncodings));
-    _setupEncodingList();
+    _setupEncodingList(pluginSupportedEncodings);
     quickSearchCallback = new EncodingQuickSearchCallback(encodingList);
     if (SwingUtilities.isEventDispatchThread())
     {
@@ -75,14 +75,21 @@ public class StatusLineEncodingProvider implements StatusLineElementProvider, Pr
   /**
    * Sets the model, cell renderer, action/inputMap and all other necessary settings for the encodingList
    */
-  private void _setupEncodingList()
+  private void _setupEncodingList(Set<String> pSupportedEncodings)
   {
     DefaultListModel<String> model = new DefaultListModel<>();
 
+    // add the supported elements first, this way the supported elements are togehter at the start at the list, and the supported elements as well
+    // as the non-supported lists are still ordered by alphabet
+    List<String> encodingsNotSupportedByPlugin = new ArrayList<>();
     for (String k : Charset.availableCharsets().keySet())
     {
-      model.addElement(k);
+      if (pSupportedEncodings.contains(k.toUpperCase()))
+        model.addElement(k);
+      else
+        encodingsNotSupportedByPlugin.add(k);
     }
+    model.addAll(encodingsNotSupportedByPlugin);
 
     encodingList.setModel(model);
     encodingList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);

@@ -4,8 +4,7 @@ import org.openide.util.ImageUtilities;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.List;
-import java.util.*;
+import java.util.Set;
 
 /**
  * @author m.kaspera, 13.02.2020
@@ -20,9 +19,9 @@ public class EncodingListCellRenderer extends JPanel implements ListCellRenderer
   private final Color backgroundColor = getBackground();
   private final Color foregroundColor = getForeground();
 
-  public EncodingListCellRenderer(List<String> pSupportedEncodings)
+  public EncodingListCellRenderer(Set<String> pSupportedEncodings)
   {
-    supportedEncodings = new HashSet<>(pSupportedEncodings);
+    supportedEncodings = pSupportedEncodings;
     warningIcon = new ImageIcon(ImageUtilities.loadImage("de/adito/nbm/encoding/warning12.png"));
     setLayout(new BorderLayout(3, 0));
     isSupportedLabel.setPreferredSize(new Dimension(16, 16));
