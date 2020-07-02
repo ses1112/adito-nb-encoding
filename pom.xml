@@ -116,6 +116,8 @@
         <version>4.3-SNAPSHOT</version>
         <extensions>true</extensions>
         <configuration>
+          <keystore>${project.basedir}/keystore</keystore>
+          <keystorealias>adito</keystorealias>
           <useOSGiDependencies>false</useOSGiDependencies>
           <sourceManifestFile>${project.basedir}/src/main/nbm/manifest.mf</sourceManifestFile>
         </configuration>
