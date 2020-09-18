@@ -12,7 +12,7 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <netbeans.version>RELEASE90a</netbeans.version>
+    <netbeans.version>RELEASE121</netbeans.version>
     <asm.version>4.1</asm.version>
     <jtrim.version>1.7.3</jtrim.version>
   </properties>
