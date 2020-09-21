@@ -1,14 +1,16 @@
 package de.adito.nbm.encoding;
 
 import com.google.common.cache.*;
+import de.adito.nbm.encoding.options.EncodingOptionsPanel;
 import org.jetbrains.annotations.*;
 import org.mozilla.universalchardet.UniversalDetector;
 import org.netbeans.spi.queries.FileEncodingQueryImplementation;
 import org.openide.filesystems.FileObject;
+import org.openide.util.NbPreferences;
 import org.openide.util.lookup.ServiceProvider;
 
 import java.io.*;
-import java.nio.charset.Charset;
+import java.nio.charset.*;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -19,6 +21,10 @@ import java.util.concurrent.*;
 public class CharDetEncodingProvider extends FileEncodingQueryImplementation
 {
 
+  public static final String ENCODING_KEY = "de.adito.plugins.encoding.default.encoding";
+  public static final String NO_DEFAULT_ENCODING = "None";
+  public static final String DEFAULT_DEFAULT_ENCODING = "";
+
   private final Cache<_FileDescription, Optional<Charset>> cache =
       CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.MINUTES).build();
 
@@ -28,42 +34,62 @@ public class CharDetEncodingProvider extends FileEncodingQueryImplementation
   {
     try
     {
-      Charset encoding = null;
-      Object fileAttributesObj = pFileObject.getAttribute("ENCODING");
-      if (fileAttributesObj != null)
-        encoding = Charset.forName((String) fileAttributesObj);
-      Charset uChardetEncoding = cache.get(new _FileDescription(pFileObject), () -> {
-        try (InputStream in = new BufferedInputStream(pFileObject.getInputStream()))
+      String defaultEncoding = NbPreferences.forModule(EncodingOptionsPanel.class).get(ENCODING_KEY, DEFAULT_DEFAULT_ENCODING);
+      // If no default encoding is set
+      if (NO_DEFAULT_ENCODING.equals(defaultEncoding) || pFileObject.getSize() > 0)
+      {
+        Charset encoding = null;
+        Object fileAttributesObj = pFileObject.getAttribute("ENCODING");
+        if (fileAttributesObj != null)
+          encoding = Charset.forName((String) fileAttributesObj);
+        Charset uChardetEncoding = cache.get(new _FileDescription(pFileObject), () -> _getEncoding(pFileObject)).orElse(null);
+        if (encoding != null && uChardetEncoding != null)
         {
-          UniversalDetector detector = new UniversalDetector(null);
-          byte[] buf = new byte[4096];
-          int nread;
-          while ((nread = in.read(buf)) > 0 && !detector.isDone())
-          {
-            detector.handleData(buf, 0, nread);
-          }
-          detector.dataEnd();
-          String detectedCharset = detector.getDetectedCharset();
-          if (detectedCharset != null)
-            return java.util.Optional.of(Charset.forName(detectedCharset));
-          return java.util.Optional.empty();
+          if (!encoding.equals(uChardetEncoding))
+            encoding = uChardetEncoding;
         }
-      }).orElse(null);
-      if (encoding != null && uChardetEncoding != null)
-      {
-        if (!encoding.equals(uChardetEncoding))
+        else if (uChardetEncoding != null)
+        {
           encoding = uChardetEncoding;
+        }
+        return encoding;
       }
-      else if (uChardetEncoding != null)
+      else
       {
-        encoding = uChardetEncoding;
+        pFileObject.setAttribute("ENCODING", defaultEncoding);
+        return Charset.forName(defaultEncoding);
       }
-      return encoding;
     }
-    catch (ExecutionException e)
+    catch (ExecutionException | IOException | IllegalCharsetNameException | UnsupportedCharsetException e)
     {
       // Wenn das Encoding nicht bestimmt werden kann, soll das eine andere Implementierung liefern.
       return null;
+    }
+  }
+
+  /**
+   * Get the encoding of the fileObject by using UCharDet
+   *
+   * @param pFileObject FileObject
+   * @return Optional of the Charset, empty optional if no Charset is detected/the confidence is too low
+   * @throws IOException IOException if e.g. the file cannot be read
+   */
+  private Optional<Charset> _getEncoding(FileObject pFileObject) throws IOException
+  {
+    try (InputStream in = new BufferedInputStream(pFileObject.getInputStream()))
+    {
+      UniversalDetector detector = new UniversalDetector(null);
+      byte[] buf = new byte[4096];
+      int nread;
+      while ((nread = in.read(buf)) > 0 && !detector.isDone())
+      {
+        detector.handleData(buf, 0, nread);
+      }
+      detector.dataEnd();
+      String detectedCharset = detector.getDetectedCharset();
+      if (detectedCharset != null)
+        return Optional.of(Charset.forName(detectedCharset));
+      return Optional.empty();
     }
   }
 

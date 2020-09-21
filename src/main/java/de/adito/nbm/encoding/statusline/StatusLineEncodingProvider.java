@@ -47,7 +47,7 @@ public class StatusLineEncodingProvider implements StatusLineElementProvider, Pr
 
   public StatusLineEncodingProvider()
   {
-    _getSupportedEncodings();
+    pluginSupportedEncodings.addAll(_getSupportedEncodings());
     encodingLabel.setBorder(new EmptyBorder(0, 10, 0, 10));
     encodingPanel = new JPanel(new BorderLayout());
     encodingPanel.add(new StatusLineSeparator(), BorderLayout.WEST);
@@ -118,8 +118,9 @@ public class StatusLineEncodingProvider implements StatusLineElementProvider, Pr
   /**
    * retrieve and store the supported encodings by juniversalchardet. Works via reflection
    */
-  private void _getSupportedEncodings()
+  public static List<String> _getSupportedEncodings()
   {
+    List<String> encodings = new ArrayList<>();
     Field[] declaredFields = Constants.class.getDeclaredFields();
     for (Field declaredField : declaredFields)
     {
@@ -127,7 +128,7 @@ public class StatusLineEncodingProvider implements StatusLineElementProvider, Pr
       {
         try
         {
-          pluginSupportedEncodings.add(((String) declaredField.get(null)).toUpperCase());
+          encodings.add(((String) declaredField.get(null)).toUpperCase());
         }
         catch (IllegalAccessException pE)
         {
@@ -135,6 +136,7 @@ public class StatusLineEncodingProvider implements StatusLineElementProvider, Pr
         }
       }
     }
+    return encodings;
   }
 
   @Override
