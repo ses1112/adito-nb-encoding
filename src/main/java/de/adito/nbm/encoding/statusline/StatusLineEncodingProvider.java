@@ -34,7 +34,7 @@ import java.util.*;
 public class StatusLineEncodingProvider implements StatusLineElementProvider, PropertyChangeListener, FileChangeListener
 {
 
-  private static final String ENCODING_ATTRIBUTE = "ENCODING";
+  public static final String ENCODING_ATTRIBUTE = "ENCODING";
   private static final String ENTER_KEY_STRING = "ENTER";
   private final JLabel encodingLabel = new JLabel("N/A");
   private final JPanel encodingPanel;

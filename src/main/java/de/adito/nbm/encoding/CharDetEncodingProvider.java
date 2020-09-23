@@ -2,6 +2,7 @@ package de.adito.nbm.encoding;
 
 import com.google.common.cache.*;
 import de.adito.nbm.encoding.options.EncodingOptionsPanel;
+import de.adito.nbm.encoding.statusline.StatusLineEncodingProvider;
 import org.jetbrains.annotations.*;
 import org.mozilla.universalchardet.UniversalDetector;
 import org.netbeans.spi.queries.FileEncodingQueryImplementation;
@@ -23,7 +24,7 @@ public class CharDetEncodingProvider extends FileEncodingQueryImplementation
 
   public static final String ENCODING_KEY = "de.adito.plugins.encoding.default.encoding";
   public static final String NO_DEFAULT_ENCODING = "None";
-  public static final String DEFAULT_DEFAULT_ENCODING = "";
+  public static final String DEFAULT_DEFAULT_ENCODING = "UTF-8";
 
   private final Cache<_FileDescription, Optional<Charset>> cache =
       CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.MINUTES).build();
@@ -36,10 +37,10 @@ public class CharDetEncodingProvider extends FileEncodingQueryImplementation
     {
       String defaultEncoding = NbPreferences.forModule(EncodingOptionsPanel.class).get(ENCODING_KEY, DEFAULT_DEFAULT_ENCODING);
       // If no default encoding is set
-      if (NO_DEFAULT_ENCODING.equals(defaultEncoding) || pFileObject.getSize() > 0)
+      if (NO_DEFAULT_ENCODING.equals(defaultEncoding) || defaultEncoding.isEmpty() || pFileObject.getSize() > 0)
       {
         Charset encoding = null;
-        Object fileAttributesObj = pFileObject.getAttribute("ENCODING");
+        Object fileAttributesObj = pFileObject.getAttribute(StatusLineEncodingProvider.ENCODING_ATTRIBUTE);
         if (fileAttributesObj != null)
           encoding = Charset.forName((String) fileAttributesObj);
         Charset uChardetEncoding = cache.get(new _FileDescription(pFileObject), () -> _getEncoding(pFileObject)).orElse(null);
@@ -56,7 +57,7 @@ public class CharDetEncodingProvider extends FileEncodingQueryImplementation
       }
       else
       {
-        pFileObject.setAttribute("ENCODING", defaultEncoding);
+        pFileObject.setAttribute(StatusLineEncodingProvider.ENCODING_ATTRIBUTE, defaultEncoding);
         return Charset.forName(defaultEncoding);
       }
     }

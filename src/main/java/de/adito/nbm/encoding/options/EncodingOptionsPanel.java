@@ -4,6 +4,7 @@ import de.adito.nbm.encoding.CharDetEncodingProvider;
 import de.adito.nbm.encoding.statusline.StatusLineEncodingProvider;
 import de.adito.swing.TableLayoutUtil;
 import info.clearthought.layout.TableLayout;
+import org.openide.util.NbPreferences;
 
 import javax.swing.*;
 import java.util.List;
@@ -21,6 +22,8 @@ public class EncodingOptionsPanel extends JPanel
     List<String> supportedEncodings = StatusLineEncodingProvider._getSupportedEncodings();
     supportedEncodings.add(CharDetEncodingProvider.NO_DEFAULT_ENCODING);
     encodingsComboBox = new JComboBox<>(supportedEncodings.toArray(new String[0]));
+    encodingsComboBox.setSelectedItem(NbPreferences.forModule(EncodingOptionsPanel.class)
+                                          .get(CharDetEncodingProvider.ENCODING_KEY, CharDetEncodingProvider.DEFAULT_DEFAULT_ENCODING));
     double fill = TableLayout.FILL;
     double pref = TableLayout.PREFERRED;
     final double gap = 15;
