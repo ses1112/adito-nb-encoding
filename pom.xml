@@ -6,7 +6,7 @@
 
   <groupId>de.adito.nbm</groupId>
   <artifactId>encoding</artifactId>
-  <version>1.0.4</version>
+  <version>1.0.5</version>
   <packaging>nbm</packaging>
   <name>Encoding Support</name>
 
@@ -218,6 +218,20 @@
       </plugin>
     </plugins>
   </build>
+
+  <distributionManagement>
+    <repository>
+      <id>adito.m2</id>
+      <name>releases</name>
+      <url>${repository.releases}</url>
+    </repository>
+    <snapshotRepository>
+      <id>adito.m2</id>
+      <name>snapshots</name>
+      <url>${repository.snapshots}</url>
+      <uniqueVersion>false</uniqueVersion>
+    </snapshotRepository>
+  </distributionManagement>
 
 
 </project>
