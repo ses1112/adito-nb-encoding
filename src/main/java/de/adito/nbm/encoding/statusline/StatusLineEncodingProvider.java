@@ -41,9 +41,9 @@ public class StatusLineEncodingProvider implements StatusLineElementProvider, Pr
   private final JList<String> encodingList;
   private final Set<String> pluginSupportedEncodings = new HashSet<>();
   private final Icon warningIcon = new ImageIcon(ImageUtilities.loadImage("de/adito/nbm/encoding/warning12.png"));
+  private final EncodingQuickSearchCallback quickSearchCallback;
   private FileObject lastFileObject;
   private PopupWindow popupWindow;
-  private EncodingQuickSearchCallback quickSearchCallback;
 
   public StatusLineEncodingProvider()
   {

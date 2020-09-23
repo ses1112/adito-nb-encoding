@@ -99,9 +99,9 @@ public class CharDetEncodingProvider extends FileEncodingQueryImplementation
    */
   private static final class _FileDescription
   {
-    private String path;
-    private long lastModified;
-    private long size;
+    private final String path;
+    private final long lastModified;
+    private final long size;
 
     private _FileDescription(FileObject pFo)
     {
