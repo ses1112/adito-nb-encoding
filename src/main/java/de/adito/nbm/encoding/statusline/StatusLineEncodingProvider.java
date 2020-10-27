@@ -55,18 +55,20 @@ public class StatusLineEncodingProvider implements StatusLineElementProvider, Pr
     TopComponent.getRegistry().addPropertyChangeListener(this);
 
     encodingList = new _JListWithTooltips(new HashSet<>(pluginSupportedEncodings));
+    JScrollPane scrollPane = new JScrollPane(encodingList);
+    scrollPane.setBorder(null);
     _setupEncodingList(pluginSupportedEncodings);
     quickSearchCallback = new EncodingQuickSearchCallback(encodingList);
     if (SwingUtilities.isEventDispatchThread())
     {
-      popupWindow = new PopupWindow(WindowManager.getDefault().getMainWindow(), "File encoding", encodingList, quickSearchCallback);
-      encodingLabel.addMouseListener(new PopupMouseAdapter(popupWindow, encodingPanel, encodingList));
+      popupWindow = new PopupWindow(WindowManager.getDefault().getMainWindow(), "File encoding", scrollPane, quickSearchCallback);
+      encodingLabel.addMouseListener(new PopupMouseAdapter(popupWindow, encodingPanel, scrollPane));
     }
     else
     {
       SwingUtilities.invokeLater(() -> {
-        popupWindow = new PopupWindow(WindowManager.getDefault().getMainWindow(), "File encoding", encodingList, quickSearchCallback);
-        encodingLabel.addMouseListener(new PopupMouseAdapter(popupWindow, encodingPanel, encodingList));
+        popupWindow = new PopupWindow(WindowManager.getDefault().getMainWindow(), "File encoding", scrollPane, quickSearchCallback);
+        encodingLabel.addMouseListener(new PopupMouseAdapter(popupWindow, encodingPanel, scrollPane));
       });
     }
     encodingList.addKeyListener(new KeyForwardAdapter(popupWindow.getSearchAttachComponent()));
