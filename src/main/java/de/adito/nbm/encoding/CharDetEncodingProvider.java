@@ -57,8 +57,13 @@ public class CharDetEncodingProvider extends FileEncodingQueryImplementation
       }
       else
       {
-        pFileObject.setAttribute(StatusLineEncodingProvider.ENCODING_ATTRIBUTE, defaultEncoding);
-        return Charset.forName(defaultEncoding);
+        Object fileAttributesObj = pFileObject.getAttribute(StatusLineEncodingProvider.ENCODING_ATTRIBUTE);
+        if (fileAttributesObj == null)
+        {
+          pFileObject.setAttribute(StatusLineEncodingProvider.ENCODING_ATTRIBUTE, defaultEncoding);
+          return Charset.forName(defaultEncoding);
+        }
+        return Charset.forName((String) fileAttributesObj);
       }
     }
     catch (ExecutionException | IOException | IllegalCharsetNameException | UnsupportedCharsetException e)
