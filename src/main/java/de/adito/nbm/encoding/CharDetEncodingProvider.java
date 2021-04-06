@@ -27,7 +27,10 @@ public class CharDetEncodingProvider extends FileEncodingQueryImplementation
   public static final String DEFAULT_DEFAULT_ENCODING = "UTF-8";
 
   private final Cache<_FileDescription, Optional<Charset>> cache =
-      CacheBuilder.newBuilder().expireAfterAccess(1, TimeUnit.MINUTES).build();
+      CacheBuilder.newBuilder()
+          .expireAfterAccess(15, TimeUnit.MINUTES)
+          .maximumSize(50000)
+          .build();
 
   @Nullable
   @Override
@@ -37,7 +40,7 @@ public class CharDetEncodingProvider extends FileEncodingQueryImplementation
     {
       String defaultEncoding = NbPreferences.forModule(EncodingOptionsPanel.class).get(ENCODING_KEY, DEFAULT_DEFAULT_ENCODING);
       // If no default encoding is set
-      if (NO_DEFAULT_ENCODING.equals(defaultEncoding) || defaultEncoding.isEmpty() || pFileObject.getSize() > 0)
+      if (NO_DEFAULT_ENCODING.equals(defaultEncoding) || pFileObject.getSize() > 0)
       {
         Charset encoding = null;
         Object fileAttributesObj = pFileObject.getAttribute(StatusLineEncodingProvider.ENCODING_ATTRIBUTE);
