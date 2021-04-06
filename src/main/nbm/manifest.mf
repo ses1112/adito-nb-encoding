@@ -2,33 +2,42 @@ Manifest-Version: 1.0
 AutoUpdate-Show-In-Client: true
 OpenIDE-Module-Long-Description: The encoding plugin shows the encoding used for the file in the active editor and also allows the setting of a new encoding
   <p style="font-weight: bold;">Changelog</p>
-  <p style="font-weight: bold;">v.1.0.6</p>
+  <p style="font-weight: bold;">v1.0.7</p>
+  <p style="margin-left: 10px; font-weight: bold;">MINOR</p>
+  <ul>
+    <li>Changed cache expiry for the encoding cache from 1 minute to 15 minutes</li>
+  </ul>
+  <p style="margin-left: 10px; font-weight: bold;">BUGFIX</p>
+  <ul>
+    <li>Fixed a stackoverflow that could occur when determining the encoding for empty files</li>
+  </ul>
+  <p style="font-weight: bold;">v1.0.6</p>
   <p style="margin-left: 10px; font-weight: bold;">BUGFIX</p>
   <ul>
     <li>Fixed an error with the popup of the list of encodings</li>
   </ul>
-  <p style="font-weight: bold;">v.1.0.5</p>
+  <p style="font-weight: bold;">v1.0.5</p>
   <p style="margin-left: 10px; font-weight: bold;">MINOR</p>
   <ul>
     <li>The default value for the default encoding is now UTF-8</li>
   </ul>
-  <p style="font-weight: bold;">v.1.0.4</p>
+  <p style="font-weight: bold;">v1.0.4</p>
   <p style="margin-left: 10px; font-weight: bold;">MAJOR</p>
   <ul>
     <li>The Plugin now supports setting a default encoding in the settings. This is done in the "ADITO" category, subcategory "Encoding". The Default encoding is used for empty files</li>
   </ul>
-  <p style="font-weight: bold;">v.1.0.3</p>
+  <p style="font-weight: bold;">v1.0.3</p>
   <p style="margin-left: 10px; font-weight: bold;">MINOR</p>
   <ul>
     <li>The supported encodings are now all at the start of the list of encodings, otherwise the list is still sorted by alphabet</li>
   </ul>
-  <p style="font-weight: bold;">v.1.0.2</p>
+  <p style="font-weight: bold;">v1.0.2</p>
   <p style="margin-left: 10px; font-weight: bold;">MINOR</p>
   <ul>
     <li>The label showing the encoding of the current file now works on the TopComponent instead of the editor -> label doesn't show "N/A" if the popup is shown</li>
     <li>The popup for the list of encodings is now aligned with the top of the label instead of the bottom</li>
   </ul>
-  <p style="font-weight: bold;">v.1.0.1</p>
+  <p style="font-weight: bold;">v1.0.1</p>
   <p style="margin-left: 10px; font-weight: bold;">MINOR</p>
   <ul>
     <li>The label showing the encoding only considers the currently active editor, instead of also the last focused one. This means "N/A" is shown if a non-Editor TopComponent is focused</li>
@@ -36,7 +45,7 @@ OpenIDE-Module-Long-Description: The encoding plugin shows the encoding used for
     <li>Adjusted looks of the popup, mostly visible in the bright theme</li>
     <li>Netbeans Plugin category is now set</li>
   </ul>
-  <p style="font-weight: bold;">v.1.0</p>
+  <p style="font-weight: bold;">v1.0</p>
   Initial Release
 OpenIDE-Module-Short-Description: Plugin that shows which encoding is used for the file in the editor
 OpenIDE-Module-Display-Category: ADITO / File
